@@ -14,31 +14,32 @@ class Exercise(db.Model):
     category= db.Column(db.String,nullable=False)
     equipment_needed = db.Column(db.Boolean,nullable=False,default=False)
 
-    workout_exercises = db.relationship("WorkoutExercise",back_populates="exercises",cascade="all, delete-orphan")
+    workout_exercises = db.relationship("WorkoutExercise",back_populates="exercise",cascade="all, delete-orphan")
 
     @validates("name") 
     def validate_name(self,value):
-        if not value or value.strip():
-            raise ValueError("Exercise name required.")
-        
-        if len(value.strip()) < 2:
+        if not value or not value.strip():
+            raise ValueError("Exercise name is required.")
+
+        cleaned_value = value.strip()
+        if len(cleaned_value) < 2:
             raise ValueError("Exercise must contain 2 or more characters.")
-        return value.strip()
+        return cleaned_value
  
     @validates("category")
     def validate_category(self,value):
         categories_allowed = {
-            "Cardio",
+            "cardio",
             "flexibility",
             "pilates",
             "balance",
             "weight lift",
             "yoga",
-            "cycle"
-            "Running"
+            "cycle",
+            "running"
         }
 
-        if not value:
+        if not value or not value.strip():
             raise ValueError("Exercise category is required")
         cleaned_value = value.strip().lower()
         if cleaned_value not in categories_allowed:
@@ -52,7 +53,7 @@ class Workout(db.Model):
     duration_minutes = db.Column(db.Integer,nullable=False)
     notes = db.Column(db.String)
 
-    workout_exercises = db.relationship("WorkoutExercise",back_populates="workouts",cascade="all, delete-orphan")
+    workout_exercises = db.relationship("WorkoutExercise",back_populates="workout",cascade="all, delete-orphan")
 
     @validates("duration_minutes")
     def validate_duration(self,value):
@@ -66,9 +67,10 @@ class Workout(db.Model):
           return value
     @validates("notes")
     def validate_notes(self,value):
-        if len(value) > 500:
+        if value is not None and len(value) > 500:
             raise ValueError("notes should not exceed 500 characters")
         return value
+    
 class WorkoutExercise(db.Model):
     __tablename__="workout_exercises"
     id = db.Column(db.Integer,primary_key=True)
@@ -79,4 +81,10 @@ class WorkoutExercise(db.Model):
     duration_seconds = db.Column(db.Integer)
 
     workout = db.relationship("Workout",back_populates="workout_exercises")
-    exercise = db.relationship("exercise",back_populates="workout_exercises")
+    exercise = db.relationship("Exercise",back_populates="workout_exercises")
+
+    @validates("duration_seconds","reps","sets")
+    def validate_positive_numbers(self,key,value):
+        if value is not None and value <= 0 :
+            raise ValueError(f"{key} must be greater than zero")
+        return value
