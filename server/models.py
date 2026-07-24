@@ -54,6 +54,21 @@ class Workout(db.Model):
 
     workout_exercises = db.relationship("WorkoutExercise",back_populates="workouts",cascade="all, delete-orphan")
 
+    @validates("duration_minutes")
+    def validate_duration(self,value):
+      if value is None:
+          raise ValueError("Workout duration is required.")
+      if value <= 0 :
+          raise ValueError("workout duration must be greater than zero!")
+      if value >1440:
+          raise ValueError("workout duration cannot exceed 1440 minutes")
+      else:
+          return value
+    @validates("notes")
+    def validate_notes(self,value):
+        if len(value) > 500:
+            raise ValueError("notes should not exceed 500 characters")
+        return value
 class WorkoutExercise(db.Model):
     __tablename__="workout_exercises"
     id = db.Column(db.Integer,primary_key=True)
