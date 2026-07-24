@@ -15,7 +15,7 @@ migrate = Migrate(app, db)
 # Define Routes here
 @app.route("/",methods=["GET"])
 def index():
-    return "<h3>Welcome to workout tracker app!</h3>"
+    return "<h3>Welcome to the workout tracker app!</h3>"
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
