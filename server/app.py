@@ -1,7 +1,7 @@
-from flask import Flask
+from flask import Flask,jsonify,request,make_response
 from flask_migrate import Migrate
 
-from models import db
+from models import db,Exercise,Workout,WorkoutExercise
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///workout_tracker.db'
@@ -12,12 +12,20 @@ migrate = Migrate(app, db)
 
 
 
-# Define Routes here
+# define home/index  route
 @app.route("/",methods=["GET"])
 def index():
     return "<h3>Welcome to the workout tracker app!</h3>"
 
-
+@app.route("/exercises",methods=["GET"])
+def view_exercises():
+    exercises = Exercise.query.all()
+    return jsonify([{
+        "id":exercise.id,
+        "name":exercise.name,
+        "category":exercise.category,
+        "equipment_needed":exercise.equipment_needed
+    }for exercise in exercises]),200
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
