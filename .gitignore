@@ -1,5 +1,7 @@
 instance/
 *.db
+server/instance/*.db
 .env
 __pycache__/
 .vscode/
+.pytest_cache/
