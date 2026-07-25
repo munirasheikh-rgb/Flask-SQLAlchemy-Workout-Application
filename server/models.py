@@ -18,7 +18,7 @@ class Exercise(db.Model):
     workout_exercises = db.relationship("WorkoutExercise",back_populates="exercise",cascade="all, delete-orphan")
 # validate exercise name
     @validates("name") 
-    def validate_name(self,value):
+    def validate_name(self,_,value):
         if not value or not value.strip():
             raise ValueError("Exercise name is required.")
 
@@ -28,7 +28,7 @@ class Exercise(db.Model):
         return cleaned_value
 # validate exercise category
     @validates("category")
-    def validate_category(self,value):
+    def validate_category(self,_,value):
         categories_allowed = {
             "cardio",
             "flexibility",
@@ -59,7 +59,7 @@ class Workout(db.Model):
 
 # validate workout duration
     @validates("duration_minutes")
-    def validate_duration(self,value):
+    def validate_duration(self,_,value):
       if value is None:
           raise ValueError("Workout duration is required.")
       if value <= 0 :
@@ -71,7 +71,7 @@ class Workout(db.Model):
 
     # validate workout notes
     @validates("notes")
-    def validate_notes(self,value):
+    def validate_notes(self,_,value):
         if value is not None and len(value) > 500:
             raise ValueError("notes should not exceed 500 characters")
         return value
