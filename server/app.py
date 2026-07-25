@@ -17,5 +17,7 @@ migrate = Migrate(app, db)
 def index():
     return "<h3>Welcome to the workout tracker app!</h3>"
 
+
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
