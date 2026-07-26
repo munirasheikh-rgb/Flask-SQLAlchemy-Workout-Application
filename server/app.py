@@ -76,6 +76,20 @@ def add_exercise():
 
         return jsonify({"error":str(e)}),400
 
+@app.route("/exercises/<int:id>",methods=["DELETE"])
+def delete_exercise(id):
+    exercise = db.session.get(Exercise,id)
+    if exercise is None:
+        return jsonify({"error":"Exercise not found"}),404
+    try:
+        db.session.delete(exercise)
+        db.session.commit()
+        return jsonify({"message":"Exercise deleted successfully"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error":str(e)}),400
+    
+
 
 
 
