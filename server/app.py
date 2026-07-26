@@ -89,7 +89,18 @@ def delete_exercise(id):
         db.session.rollback()
         return jsonify({"error":str(e)}),400
 
-    
+
+@app.route("/workouts",methods=["GET"])
+def view_all_workouts():
+    workouts = Workout.query.all()
+    return jsonify([{
+        "id" :workout.id,
+        "date":workout.date,
+        "duration_minutes":workout.duration_minutes,
+        "notes":workout.notes
+
+     }for workout in workouts]),200
+
     
 
 
