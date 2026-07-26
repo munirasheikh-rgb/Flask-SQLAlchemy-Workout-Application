@@ -66,5 +66,13 @@ def test_create_exercise_saves_to_database(client):
     assert exercise.equipment_needed is True
     db.session.delete(exercise)
     db.session.commit()
-    
 
+def test_delete_exercise(client):
+    response = client.post("/exercises",json={
+        "name":"Mountain climb",
+        "category":"cardio",
+        "equipment_needed":False
+    })
+    exercise_id = response.get_json()["id"]
+    response =client.delete(f"exercises/{exercise_id}")
+    assert response.status_code == 200

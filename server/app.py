@@ -75,7 +75,7 @@ def add_exercise():
         db.session.rollback()  
 
         return jsonify({"error":str(e)}),400
-
+# delete an exercise from db
 @app.route("/exercises/<int:id>",methods=["DELETE"])
 def delete_exercise(id):
     exercise = db.session.get(Exercise,id)
@@ -88,6 +88,8 @@ def delete_exercise(id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error":str(e)}),400
+
+    
     
 
 
