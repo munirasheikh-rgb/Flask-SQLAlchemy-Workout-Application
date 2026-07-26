@@ -57,19 +57,23 @@ def get_exercise_and_workouts(id):
 
 @app.route("/exercises",methods=["POST"])
 def add_exercise():
-    data = request.get_json()
-    new_exercise = Exercise(name=data["name"],category=data["category"],equipment_needed=data["equipment_needed"])
+    try:
+        data = request.get_json()
+        new_exercise = Exercise(name=data["name"],category=data["category"],equipment_needed=data.get("equipment_needed",False))
 
-    db.session.add(new_exercise)
-    db.session.commit()
+        db.session.add(new_exercise)
+        db.session.commit()
 
-    return jsonify({
-        "id":new_exercise.id,
-        "name":new_exercise.name,
-        "category":new_exercise.category,
-        "equipment_needed":new_exercise.equipment_needed
-    }),201
+        return jsonify({
+            "id":new_exercise.id,
+            "name":new_exercise.name,
+            "category":new_exercise.category,
+            "equipment_needed":new_exercise.equipment_needed
+        }),201
+    except(ValueError,KeyError,TypeError)as e:
+        db.session.rollback()
 
+        return jsonify({"error":str(e)}),400
 
 
 
