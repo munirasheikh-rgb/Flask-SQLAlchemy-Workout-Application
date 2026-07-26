@@ -1,5 +1,6 @@
 from flask import Flask,jsonify,request,make_response
 from flask_migrate import Migrate
+from datetime import date
 
 from models import db,Exercise,Workout,WorkoutExercise
 
@@ -95,7 +96,7 @@ def view_all_workouts():
     workouts = Workout.query.all()
     return jsonify([{
         "id" :workout.id,
-        "date":workout.date,
+        "date":workout.date.isoformat(),
         "duration_minutes":workout.duration_minutes,
         "notes":workout.notes
 
@@ -110,7 +111,7 @@ def workout_and_exercises(id):
     else:
         return jsonify({
             "id":workout.id,
-            "date":workout.date,
+            "date":workout.date.isoformat(),
             "duration_minutes":workout.duration_minutes,
             "notes":workout.notes,
 
@@ -128,9 +129,26 @@ def workout_and_exercises(id):
         }),200
     
      
+@app.route("/workouts",methods=["POST"])
+def create_workout():
+ try:
+    data =request.get_json()
 
+    if data is None:
+        return jsonify({"error":"Request body must contain JSON data"}),400
 
-
+    new_workout = Workout(date=date.fromisoformat(data["date"]),duration_minutes=data["duration_minutes"],notes=data.get("notes"))
+    db.session.add(new_workout)
+    db.session.commit()
+    return jsonify({
+        "id":new_workout.id,
+        "date":new_workout.date.isoformat(),
+        "duration_minutes":new_workout.duration_minutes,
+        "notes":new_workout.notes
+    }),201
+ except(ValueError,KeyError,TypeError) as e:
+    db.session.rollback()
+    return jsonify({"error":str(e)}),400
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

@@ -94,3 +94,25 @@ def test_workout_and_exercises(client):
     assert "exercises" in data
 
     assert isinstance(data["exercises"],list)
+
+def test_create_workout(client):
+    workout = None
+    try:
+     response =client.post("/workouts", json={
+         "date":"2026-07-27",
+         "duration_minutes":30,
+         "notes":"full body session workout"
+     })
+     data = response.get_json()
+     assert response.status_code == 201
+
+     workout = db.session.get(Workout,data["id"])
+     assert workout is not None
+     assert workout.date.isoformat() == "2026-07-27"
+     assert workout.duration_minutes == 30
+     assert workout.notes == "full body session workout"
+
+    finally:
+        if workout is not None:
+            db.session.delete(workout)
+            db.session.commit()
