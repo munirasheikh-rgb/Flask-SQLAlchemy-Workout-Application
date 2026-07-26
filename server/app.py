@@ -54,13 +54,13 @@ def get_exercise_and_workouts(id):
           }for we in exercise.workout_exercises]
       }),200
 
-
+# create new exercise and saves to the database
 @app.route("/exercises",methods=["POST"])
 def add_exercise():
     try:
         data = request.get_json()
         new_exercise = Exercise(name=data["name"],category=data["category"],equipment_needed=data.get("equipment_needed",False))
-
+        # save new exercise to the db
         db.session.add(new_exercise)
         db.session.commit()
 
@@ -70,8 +70,9 @@ def add_exercise():
             "category":new_exercise.category,
             "equipment_needed":new_exercise.equipment_needed
         }),201
-    except(ValueError,KeyError,TypeError)as e:
-        db.session.rollback()
+    #Roll back the tansaction on error
+    except(ValueError,KeyError,TypeError)as e: 
+        db.session.rollback()  
 
         return jsonify({"error":str(e)}),400
 
