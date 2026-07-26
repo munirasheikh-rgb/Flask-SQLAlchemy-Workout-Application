@@ -89,7 +89,7 @@ def delete_exercise(id):
         db.session.rollback()
         return jsonify({"error":str(e)}),400
 
-
+# list all workouts in the db
 @app.route("/workouts",methods=["GET"])
 def view_all_workouts():
     workouts = Workout.query.all()
@@ -101,7 +101,33 @@ def view_all_workouts():
 
      }for workout in workouts]),200
 
+@app.route("/workouts/<int:id>",methods=["GET"])
+def workout_and_exercises(id):
+    workout = db.session.get(Workout,id)
+
+    if not workout:
+        return jsonify({"error":"Workout not found!"}),404
+    else:
+        return jsonify({
+            "id":workout.id,
+            "date":workout.date,
+            "duration_minutes":workout.duration_minutes,
+            "notes":workout.notes,
+
+            "exercises":[{
+             "id":we.exercise.id,
+             "name":we.exercise.name,
+             "category":we.exercise.category,
+             "equipment_needed":we.exercise.equipment_needed,
+             "sets":we.sets,
+             "reps":we.reps,
+             "duration_seconds":we.duration_seconds
+             
+            }for we in workout.workout_exercises]
+
+        }),200
     
+     
 
 
 
