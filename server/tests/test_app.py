@@ -1,6 +1,6 @@
 import pytest 
 from app import app
-from models import db,Exercise
+from models import db,Exercise,Workout,WorkoutExercise
 
 @pytest.fixture
 def client():
@@ -74,5 +74,23 @@ def test_delete_exercise(client):
         "equipment_needed":False
     })
     exercise_id = response.get_json()["id"]
-    response =client.delete(f"exercises/{exercise_id}")
+    response =client.delete(f"/exercises/{exercise_id}")
     assert response.status_code == 200
+
+def test_get_all_workouts(client):
+    response = client.get("/workouts")
+    data = response.get_json()
+    assert response.status_code == 200
+    assert isinstance(data,list)
+
+def test_workout_and_exercises(client):
+    response = client.get("/workouts/1")
+    data =response.get_json()
+    assert response.status_code == 200
+    assert data["id"] == 1
+    assert "date" in data
+    assert "duration_minutes" in data
+    assert "notes" in data
+    assert "exercises" in data
+
+    assert isinstance(data["exercises"],list)
