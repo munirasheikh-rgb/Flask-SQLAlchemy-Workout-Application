@@ -28,7 +28,7 @@ def view_exercises():
         "equipment_needed":exercise.equipment_needed
     }for exercise in exercises]),200
 
-
+# get a specific exercise associated with it's workouts
 @app.route("/exercises/<int:id>",methods=["GET"])
 def get_exercise_and_workouts(id):
     exercise = db.session.get(Exercise,id)
@@ -50,10 +50,27 @@ def get_exercise_and_workouts(id):
               "sets":we.sets,
               "reps":we.reps,
               "duration_seconds":we.duration_seconds
-
+            # returning an exercise with workouts
           }for we in exercise.workout_exercises]
       }),200
-    
+
+
+@app.route("/exercises",methods=["POST"])
+def add_exercise():
+    data = request.get_json()
+    new_exercise = Exercise(name=data["name"],category=data["category"],equipment_needed=data["equipment_needed"])
+
+    db.session.add(new_exercise)
+    db.session.commit()
+
+    return jsonify({
+        "id":new_exercise.id,
+        "name":new_exercise.name,
+        "category":new_exercise.category,
+        "equipment_needed":new_exercise.equipment_needed
+    }),201
+
+
 
 
 
