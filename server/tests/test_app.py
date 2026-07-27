@@ -1,11 +1,13 @@
 import pytest 
 from app import app
+from datetime import date
 from models import db,Exercise,Workout,WorkoutExercise
 
 @pytest.fixture
 def client():
     app.config["TESTING"] =True
-    with app.test_client()as client:
+    with app.app_context():
+      with app.test_client()as client:
         yield client
 
 def test_get_all_exercises(client):
@@ -116,3 +118,31 @@ def test_create_workout(client):
         if workout is not None:
             db.session.delete(workout)
             db.session.commit()
+
+def test_adds_exercise_to_workout(client):
+    workout = Workout(date=date(2026,6,24),duration_minutes=40,notes="test workout notes")
+    exercise = Exercise(name="squats",category="flexibility",equipment_needed=False)
+    db.session.add_all([workout,exercise])
+    db.session.commit()
+
+    try:
+     response = client.post(f"/workouts/{workout.id}/exercises/{exercise.id}/workout_exercises",
+                            json={"reps":5,"sets":2,"duration_seconds":1000})
+     data = response.get_json()
+     assert response.status_code == 201
+     assert data["workout_id"] == workout.id
+     assert data["exercise_id"] == exercise.id
+     assert data["reps"] == 5
+     assert data["sets"] == 2
+     assert data["duration_seconds"] == 1000
+
+     workout_exercise = db.session.get(WorkoutExercise,data["id"])
+     assert workout_exercise is not None
+     assert workout_exercise.workout_id == workout.id
+     assert workout_exercise.exercise_id== exercise.id
+    finally:
+        WorkoutExercise.query.filter_by(workout_id=workout.id,exercise_id=exercise.id).delete()
+        db.session.delete(workout)
+        db.session.delete(exercise)
+        db.session.commit()
+

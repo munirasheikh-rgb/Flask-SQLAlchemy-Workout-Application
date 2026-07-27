@@ -164,11 +164,13 @@ def delete_workout(id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error":str(e)}),400
-
+# add new exercise to a workout with optional sets,reps,and duration_seconds
 @app.route("/workouts/<workout_id>/exercises/<exercise_id>/workout_exercises",methods=["POST"])
 def create_workout_exercises(workout_id,exercise_id):
+    # retrieve workout and exercise from the db
     workout = db.session.get(Workout,workout_id)
     exercise = db.session.get(Exercise,exercise_id)
+    # return an error if workout or exercise do not exist
     if workout is None:
         return jsonify({"error":"Workout not found."}),404
     if exercise is None:
@@ -193,6 +195,7 @@ def create_workout_exercises(workout_id,exercise_id):
         }),201
 
     except(ValueError,TypeError) as e:
+        # revert back the transaction if validation fails
         db.session.rollback()
         return jsonify({"error":str(e)}),400
     
