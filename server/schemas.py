@@ -1,5 +1,5 @@
 from flask_marshmallow import Marshmallow
-from marshmallow import fields ,Schema
+from marshmallow import fields ,Schema,validates
 
 ma = Marshmallow()
 
@@ -23,3 +23,14 @@ class WorkoutExerciseSchema(Schema):
     reps = fields.Int(allow_none=True)
     sets=fields.Int(allow_none=True)
     duration__seconds=fields.Int(allow_none=True)
+
+exercise_schema = ExerciseSchema()
+exercises_schema = ExerciseSchema(many=True)
+
+workout_schema = WorkoutSchema()
+workouts_schema = WorkoutSchema(many=True)
+
+w_exercise_schema = WorkoutExerciseSchema()
+w_exercises_schema = WorkoutExerciseSchema(many=True)
+
+
