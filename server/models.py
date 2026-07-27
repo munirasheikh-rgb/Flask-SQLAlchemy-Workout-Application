@@ -10,7 +10,7 @@ class Exercise(db.Model):
     __tablename__= "exercises"
 
     id = db.Column(db.Integer,primary_key= True)
-    name = db.Column(db.String,nullable=False)
+    name = db.Column(db.String,unique=True,nullable=False)
     category= db.Column(db.String,nullable=False)
     equipment_needed = db.Column(db.Boolean,nullable=False,default=False)
 
@@ -49,6 +49,9 @@ class Exercise(db.Model):
   # workout model stores workout sessions
 class Workout(db.Model):
     __tablename__="workouts"
+
+    __table_args__ = (db.CheckConstraint("duration_minutes>0",name="checks_workout_duration_positive"),)
+
     id = db.Column(db.Integer,primary_key=True)
     date = db.Column(db.Date,nullable=False,default=date.today)
     duration_minutes = db.Column(db.Integer,nullable=False)
@@ -79,6 +82,10 @@ class Workout(db.Model):
  # model linking workout and exercises
 class WorkoutExercise(db.Model):
     __tablename__="workout_exercises"
+    __table_args__=(db.UniqueConstraint("workout_id","exercise_id",name="unique_workout_exerciise"),
+                    db.CheckConstraint("reps IS NULL OR reps>0",name="check_reps_positive"),
+                    db.CheckConstraint("sets IS NULL OR sets>0",name="check_sets_positive"),
+                    db.CheckConstraint("duration_seconds IS NULL OR duration_seconds>0",name="check_duration_seconds_positive"),)
     id = db.Column(db.Integer,primary_key=True)
     workout_id = db.Column(db.Integer,db.ForeignKey("workouts.id"),nullable=False)
     exercise_id = db.Column(db.Integer,db.ForeignKey("exercises.id"),nullable=False)
