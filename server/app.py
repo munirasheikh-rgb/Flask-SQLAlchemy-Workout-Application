@@ -165,9 +165,36 @@ def delete_workout(id):
         db.session.rollback()
         return jsonify({"error":str(e)}),400
 
+@app.route("/workouts/<workout_id>/exercises/<exercise_id>/workout_exercises",methods=["POST"])
+def create_workout_exercises(workout_id,exercise_id):
+    workout = db.session.get(Workout,workout_id)
+    exercise = db.session.get(Exercise,exercise_id)
+    if workout is None:
+        return jsonify({"error":"Workout not found."}),404
+    if exercise is None:
+        return jsonify({"error":"Exercise not found."}),404
 
+    try:
+        data = request.get_json()
+        new_w_exercise = WorkoutExercise(workout_id=workout_id,
+                                         exercise_id=exercise_id,
+                                         reps=data.get("reps"),
+                                         sets= data.get("sets"),
+                                         duration_seconds=data.get("duration_seconds"))
+        db.session.add(new_w_exercise)
+        db.session.commit()
+        return jsonify({
+            "id":new_w_exercise.id,
+            "workout_id":new_w_exercise.workout_id,
+            "exercise_id":new_w_exercise.exercise_id,
+            "reps":new_w_exercise.reps,
+            "sets":new_w_exercise.sets,
+            "duration_seconds":new_w_exercise.duration_seconds
+        }),201
 
-   
-
+    except(ValueError,TypeError) as e:
+        db.session.rollback()
+        return jsonify({"error":str(e)}),400
+    
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
