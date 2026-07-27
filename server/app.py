@@ -128,7 +128,7 @@ def workout_and_exercises(id):
 
         }),200
     
-     
+    #Add new workout 
 @app.route("/workouts",methods=["POST"])
 def create_workout():
  try:
@@ -138,6 +138,7 @@ def create_workout():
         return jsonify({"error":"Request body must contain JSON data"}),400
 
     new_workout = Workout(date=date.fromisoformat(data["date"]),duration_minutes=data["duration_minutes"],notes=data.get("notes"))
+    # save new workout 
     db.session.add(new_workout)
     db.session.commit()
     return jsonify({
@@ -149,6 +150,24 @@ def create_workout():
  except(ValueError,KeyError,TypeError) as e:
     db.session.rollback()
     return jsonify({"error":str(e)}),400
+# delete work out related to exercises
+@app.route("/workouts/<int:id>",methods=["DELETE"])
+def delete_workout(id):
+    workout = db.session.get(Workout,id)
+
+    if not workout:
+        return jsonify({"error":"Workout not found"}),404
+    try:
+        db.session.delete(workout)
+        db.session.commit()
+        return jsonify({"message":"Workout deleted successfully"}),200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error":str(e)}),400
+
+
+
+   
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
