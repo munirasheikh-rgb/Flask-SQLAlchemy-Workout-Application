@@ -10,7 +10,7 @@ class ExerciseSchema(Schema):
     equipment_needed = fields.Bool(load_default=False)
 # validate exercise name
     @validates("name")
-    def validate_name(self,value):
+    def validate_name(self,value,**kwargs):
         if not value or not value.strip():
             raise ValidationError("Exercise name is required")
         
@@ -19,7 +19,7 @@ class ExerciseSchema(Schema):
             raise ValidationError("Exercise must contain 2 or more characters")
 # validate exercise caegory
     @validates("category")    
-    def validate_category(self,value):
+    def validate_category(self,value,**kwargs):
         allowed_c = {
            "cardio",
             "flexibility",
@@ -44,14 +44,14 @@ class WorkoutSchema(Schema):
     notes = fields.Str(allow_none=True)
 # validate notes are less than 500 characters
     @validates("notes")
-    def validate_notes(self,value):
+    def validate_notes(self,value,**kwargs):
         if value is not None and len(value) > 500:
             raise ValidationError("notes should'nt exceed 500 characters")
 
 class WorkoutExerciseSchema(Schema):
     id = fields.Int(dump_only=True)
-    workout_id = fields.Int(required=True)
-    exercise_id =fields.Int(required=True)
+    workout_id = fields.Int(dump_only=True)
+    exercise_id =fields.Int(dump_only=True)
     reps = fields.Int(allow_none=True)
     sets=fields.Int(allow_none=True)
     duration_seconds=fields.Int(allow_none=True)
